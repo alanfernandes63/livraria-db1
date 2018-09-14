@@ -2,6 +2,7 @@ package br.eaj.tads.livraria_db1.util;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -88,6 +89,31 @@ public class BancoHelper extends SQLiteOpenHelper {
             }
         }finally{
            banco.close();
+        }
+    }
+    public Livro proximo(int id) {
+        SQLiteDatabase banco = getReadableDatabase();
+
+        try {
+            //select Livro from livro where id = id
+            String selection = LivroContrato.LivroEntry._ID + " ?";
+            String[] StringId = new String[]{String.valueOf(id)};
+            Cursor c = banco.query(LivroContrato.LivroEntry.TABLE_NAME, null, selection, StringId, null, null, null, null);
+
+            if (c.moveToFirst()) {
+                Livro livro = new Livro(
+                        c.getString(c.getColumnIndex(LivroContrato.LivroEntry.TITULO)),
+                        c.getString(c.getColumnIndex(LivroContrato.LivroEntry.AUTOR)),
+                        c.getInt(c.getColumnIndex(LivroContrato.LivroEntry.ANO)),
+                        c.getFloat(c.getColumnIndex(LivroContrato.LivroEntry.NOTA)),
+                        c.getLong(c.getColumnIndex(LivroContrato.LivroEntry._ID))
+                );
+                return livro;
+            } else {
+                return null;
+            }
+        } finally {
+            banco.close();
         }
     }
 

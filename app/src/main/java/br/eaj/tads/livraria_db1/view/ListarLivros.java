@@ -1,6 +1,7 @@
 package br.eaj.tads.livraria_db1.view;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -33,12 +34,13 @@ public class ListarLivros extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_listar_livros);
 
-        livros = new ArrayList<Livro>();
 
+        livros = new ArrayList<Livro>();
         titulo = findViewById(R.id.titulo);
         autor = findViewById(R.id.autor);
         ano = findViewById(R.id.ano);
         nota = findViewById(R.id.nota);
+
 
         BancoHelper bh = new BancoHelper(this);
         livros = bh.listAll();
@@ -50,8 +52,8 @@ public class ListarLivros extends AppCompatActivity {
 
         if (livros != null) {
             if (!livros.isEmpty())
-                livro = livros.get(0);
-            Toast.makeText(this, "teste" + livro.getTitulo(), Toast.LENGTH_SHORT).show();
+                livro = livros.get(cont);
+            Toast.makeText(this, "tetseasd" + cont + livro.getTitulo(), Toast.LENGTH_SHORT).show();
         }
 
         titulo.setText(livro.getTitulo());
@@ -60,7 +62,7 @@ public class ListarLivros extends AppCompatActivity {
         nota.setText(livro.getNota() + "");
 
 
-        if(cont == livros.size())
+        if(cont + 1 == livros.size())
             disabilitarBotao(proximo);
         if (livro.getId() == 0)
             disabilitarBotao(anterior);
@@ -70,11 +72,17 @@ public class ListarLivros extends AppCompatActivity {
     public void proximo(View v){
         cont++;
         livro = livros.get(cont);
-        titulo.setText(livro.getTitulo());
+
 
         if(cont + 1 == livros.size())
             disabilitarBotao(v);
         anterior.setEnabled(true);
+
+        titulo.setText(livro.getTitulo());
+        autor.setText(livro.getAutor());
+        ano.setText(livro.getAno() + "");
+        nota.setText(livro.getNota() + "");
+        ;
     }
 
     public void anterior(View v){
@@ -83,15 +91,13 @@ public class ListarLivros extends AppCompatActivity {
         if (cont - 1 == 0)
             disabilitarBotao(v);
         proximo.setEnabled(true);
-    }
-
-    private void disabilitarBotao(View v){
-        v.setEnabled(false);
-    }
-    private void alterarLivro(Livro l){
         titulo.setText(livro.getTitulo());
         autor.setText(livro.getAutor());
         ano.setText(livro.getAno() + "");
         nota.setText(livro.getNota() + "");
+    }
+    //metodo para desabilitar botao
+    private void disabilitarBotao(View v){
+        v.setEnabled(false);
     }
 }

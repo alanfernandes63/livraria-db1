@@ -118,6 +118,7 @@ public class BancoHelper extends SQLiteOpenHelper {
                 livro.setId(c.getInt(c.getColumnIndex(LivroContrato.LivroEntry._ID)));
                 livro.setTitulo(c.getString(c.getColumnIndex(LivroContrato.LivroEntry.TITULO)));
                 livro.setAutor(c.getString(c.getColumnIndex(LivroContrato.LivroEntry.AUTOR)));
+                livro.setAno(c.getInt(c.getColumnIndex(LivroContrato.LivroEntry.ANO)));
                 livro.setNota(c.getFloat(c.getColumnIndex(LivroContrato.LivroEntry.NOTA)));
                 livros.add(livro);
 

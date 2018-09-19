@@ -10,6 +10,9 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import br.eaj.tads.livraria_db1.model.Livro;
 
 public class BancoHelper extends SQLiteOpenHelper {
@@ -29,33 +32,34 @@ public class BancoHelper extends SQLiteOpenHelper {
 
     //sql de criação de tabela
     private static String CREATE_TABLE = ("CREATE TABLE " + LivroContrato.LivroEntry.TABLE_NAME +
-    "(" + LivroContrato.LivroEntry._ID  + INTEGER + VIRGULA + LivroContrato.LivroEntry.TITULO + TEXT +
-    VIRGULA + LivroContrato.LivroEntry.AUTOR + TEXT + VIRGULA + LivroContrato.LivroEntry.ANO + INTEGER +
-    VIRGULA + LivroContrato.LivroEntry.NOTA + REAL + ");");
+            "(" + LivroContrato.LivroEntry._ID + INTEGER + VIRGULA + LivroContrato.LivroEntry.TITULO + TEXT +
+            VIRGULA + LivroContrato.LivroEntry.AUTOR + TEXT + VIRGULA + LivroContrato.LivroEntry.ANO + INTEGER +
+            VIRGULA + LivroContrato.LivroEntry.NOTA + REAL + ");");
 
     private static String DROP_TABLE = ("DROP TABLE " + LivroContrato.LivroEntry.TABLE_NAME);
 
     public BancoHelper(Context context) {
-        super(context,NOME_BANCO, null, VERSAO_BANCO);
+        super(context, NOME_BANCO, null, VERSAO_BANCO);
 
     }
 
     @Override
     public void onCreate(SQLiteDatabase banco) {
-    Log.d(TAG,"Não foi possível acessar o bamco criando um novo!");
-    banco.execSQL(CREATE_TABLE);
-    Log.d(TAG,"Banco criado com sucesso!");
+        Log.d(TAG, "Não foi possível acessar o bamco criando um novo!");
+        banco.execSQL(CREATE_TABLE);
+        Log.d(TAG, "Banco criado com sucesso!");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase banco, int versao_anterior, int nova_versao) {
-    //Caso ocorra mudança de versão
-        if (versao_anterior !=  nova_versao){
-            Log.d(TAG,"Foi detectada uma nova versão do banco, aqui deverão ser executados os escripts de update");
+        //Caso ocorra mudança de versão
+        if (versao_anterior != nova_versao) {
+            Log.d(TAG, "Foi detectada uma nova versão do banco, aqui deverão ser executados os escripts de update");
             banco.execSQL(DROP_TABLE);
             this.onCreate(banco);
         }
     }
+
     // metoto para salvar um registro no bamco
     public long insert(Livro livro) {
 
@@ -72,7 +76,6 @@ public class BancoHelper extends SQLiteOpenHelper {
             valores.put(LivroContrato.LivroEntry.NOTA, livro.getNota());
 
 
-
             if (id != 0) {
                 String selecao = LivroContrato.LivroEntry._ID + "= ?";
                 String[] stringId = new String[]{String.valueOf(LivroContrato.LivroEntry._ID)};
@@ -87,34 +90,39 @@ public class BancoHelper extends SQLiteOpenHelper {
                 Log.i(TAG, "Inseriu id = " + id + "Tabela: " + LivroContrato.LivroEntry.TABLE_NAME + "Banco: " + NOME_BANCO);
                 return id;
             }
-        }finally{
-           banco.close();
-        }
-    }
-    public Livro proximo(int id) {
-        SQLiteDatabase banco = getReadableDatabase();
-
-        try {
-            //select Livro from livro where id = id
-            String selection = LivroContrato.LivroEntry._ID + " ?";
-            String[] StringId = new String[]{String.valueOf(id)};
-            Cursor c = banco.query(LivroContrato.LivroEntry.TABLE_NAME, null, selection, StringId, null, null, null, null);
-
-            if (c.moveToFirst()) {
-                Livro livro = new Livro(
-                        c.getString(c.getColumnIndex(LivroContrato.LivroEntry.TITULO)),
-                        c.getString(c.getColumnIndex(LivroContrato.LivroEntry.AUTOR)),
-                        c.getInt(c.getColumnIndex(LivroContrato.LivroEntry.ANO)),
-                        c.getFloat(c.getColumnIndex(LivroContrato.LivroEntry.NOTA)),
-                        c.getLong(c.getColumnIndex(LivroContrato.LivroEntry._ID))
-                );
-                return livro;
-            } else {
-                return null;
-            }
         } finally {
             banco.close();
         }
     }
 
+    public List<Livro> listAll() {
+        SQLiteDatabase db = getReadableDatabase();
+
+        try {
+
+            //SELECT * FROM LIVRO
+            Cursor c = db.query(LivroContrato.LivroEntry.TABLE_NAME,null,null,null,null,null,null);
+            return listar(c);
+        }finally {
+            db.close();
+        }
+    }
+
+    private List<Livro> listar(Cursor c) {
+        List<Livro> livros = new ArrayList<Livro>();
+
+        if (c.moveToFirst()) {
+            do {
+                Livro livro = new Livro();
+
+                livro.setId(c.getInt(c.getColumnIndex(LivroContrato.LivroEntry._ID)));
+                livro.setTitulo(c.getString(c.getColumnIndex(LivroContrato.LivroEntry.TITULO)));
+                livro.setAutor(c.getString(c.getColumnIndex(LivroContrato.LivroEntry.AUTOR)));
+                livro.setNota(c.getFloat(c.getColumnIndex(LivroContrato.LivroEntry.NOTA)));
+                livros.add(livro);
+
+            } while (c.moveToNext());
+        }
+        return livros;
+    }
 }

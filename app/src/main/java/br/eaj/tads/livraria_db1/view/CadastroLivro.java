@@ -68,10 +68,8 @@ public class CadastroLivro extends AppCompatActivity {
             id++;
             db.insert(livro);
 
-            titulo.setText("");
-            autor.setText("");
-            ano.setText("");
-            nota.setRating(0);
+            setResult(RESULT_OK);
+            finish();
         }
     }
 
